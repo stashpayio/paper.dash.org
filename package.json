@@ -1,9 +1,8 @@
 {
-  "name": "bitaddress.org",
+  "name": "paper.dash.org",
   "version": "3.1.0",
-  "sha1sum": "cd0806b7a95e31e27a9e88c516876f21d841a461",
   "sha256sum": "c3d4d8da8fc6980435a520dff562b7f831b2f6037ec2d4dd6bf76c5321873303",
-  "description": "Open Source JavaScript Client-Side Bitcoin Wallet Generator",
+  "description": "Open Source JavaScript Client-Side Dash Wallet Generator",
   "main": "Gruntfile.js",
   "dependencies": {
     "grunt": "~0.4.1",
@@ -20,16 +19,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/pointbiz/bitaddress.org.git"
+    "url": "git://github.com/dash/paperwallet"
   },
   "keywords": [
-    "bitcoin address wallet generator"
+    "dash address wallet generator"
   ],
-  "author": "pointbiz",
+  "author": "dash",
+  "contributors": [{"name": "pointbiz"}],
   "license": "MIT",
   "readmeFilename": "README",
   "gitHead": "d77aaf687fca1f0e28388b0a8de5eb3d89d4fad3",
   "bugs": {
-    "url": "https://github.com/pointbiz/bitaddress.org/issues"
+    "url": "https://github.com/dash/paperwallet/issues"
   }
 }

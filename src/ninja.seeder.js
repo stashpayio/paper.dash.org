@@ -6,7 +6,7 @@
 	// number of mouse movements to wait for
 	seedLimit: (function () {
 		var num = Crypto.util.randomBytes(12)[11];
-		return 200 + Math.floor(num);
+		return (200 + Math.floor(num))/10;
 	})(),
 
 	seedCount: 0, // counter
@@ -20,7 +20,7 @@
 		if (!evt) var evt = window.event;
 		var timeStamp = new Date().getTime();
 		// seeding is over now we generate and display the address
-		if (ninja.seeder.seedCount == ninja.seeder.seedLimit) {
+		if (ninja.seeder.seedCount >= ninja.seeder.seedLimit) {
 			ninja.seeder.seedCount++;
 			ninja.seeder.seedingOver();
 		}
@@ -39,7 +39,7 @@
 	seedKeyPress: function (evt) {
 		if (!evt) var evt = window.event;
 		// seeding is over now we generate and display the address
-		if (ninja.seeder.seedCount == ninja.seeder.seedLimit) {
+		if (ninja.seeder.seedCount >= ninja.seeder.seedLimit) {
 			ninja.seeder.seedCount++;
 			ninja.seeder.seedingOver();
 		}
@@ -69,7 +69,9 @@
 			document.getElementById("seedpool").innerHTML = poolHex;
 			document.getElementById("seedpooldisplay").innerHTML = poolHex;
 		}
-		var percentSeeded = Math.round((ninja.seeder.seedCount / ninja.seeder.seedLimit) * 100) + "%";
+		var percentSeeded = Math.round((ninja.seeder.seedCount / ninja.seeder.seedLimit) * 100);
+		percentSeeded = (percentSeeded < 100) ? percentSeeded : 100;
+		percentSeeded += "%";
 		document.getElementById("mousemovelimit").innerHTML = percentSeeded;
 		for (var wIndex in ninja.seeder.seederDependentWallets) {
 			document.getElementById(ninja.seeder.seederDependentWallets[wIndex]).innerHTML = percentSeeded;

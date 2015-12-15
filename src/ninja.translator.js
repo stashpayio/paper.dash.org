@@ -287,7 +287,7 @@ ninja.translator = {
 			"footerlabelgithub": "Dépôt GitHub",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "Les droits d'auteurs JavaScript sont inclus dans le code source.",
 			"footerlabelnowarranty": "Aucune garantie.",
 
@@ -452,7 +452,7 @@ ninja.translator = {
 			"footerlabelgithub": "Αποθετήριο GitHub",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "Τα πνευματικά δικαιώματα της JavaScript περιλαμβάνονται στον κώδικα.",
 			"footerlabelnowarranty": "Καμία εγγύηση.",
 
@@ -617,7 +617,7 @@ ninja.translator = {
 			"footerlabelgithub": "Repository GitHub",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "Le note di copyright dei file JavaScript sono inclusi nei sorgenti stessi.",
 			"footerlabelnowarranty": "Nessuna garanzia.",
 
@@ -782,7 +782,7 @@ ninja.translator = {
 			"footerlabelgithub": "GitHub-Repository",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "JavaScript-Copyrights sind im Quelltext enthalten.",
 			"footerlabelnowarranty": "Ohne Gew&auml;hr.",
 
@@ -947,7 +947,7 @@ ninja.translator = {
 			"footerlabelgithub": "GitHub Repository",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "Copyright JavaScriptu je uveden ve zdrojovém kódu.",
 			"footerlabelnowarranty": "Bez záruky.",
 
@@ -1112,7 +1112,7 @@ ninja.translator = {
 			"footerlabelgithub": "GitHub kódtár",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "Az egyes JavaScript kódok szerzőinek jogai a forráskódon belül találhatók meg.",
 			"footerlabelnowarranty": "Garancia nincs.",
 
@@ -1283,7 +1283,7 @@ ninja.translator = {
 			"footerlabelgithub": "GitHubリポジトリ",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "JavaScriptのコピーライト情報はソースに含まれています。",
 			"footerlabelnowarranty": "保障はありません。",
 
@@ -1455,7 +1455,7 @@ ninja.translator = {
 			"footerlabelgithub": "Repositório GitHub",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "Copyright do código JavaScript: no código-fonte.",
 			"footerlabelnowarranty": "Sem garantia.",
 
@@ -1620,7 +1620,7 @@ ninja.translator = {
 			"footerlabelgithub": "GitHub页面",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-			"footerlabelcopyright1": "Copyright bitaddress.org.",
+			"footerlabelcopyright1": "Copyright bitaddress.org, The Dash Developers.",
 			"footerlabelcopyright2": "JavaScript的版权信息已经包含在源代码中。",
 			"footerlabelnowarranty": "No warranty",
 
@@ -1791,7 +1791,7 @@ ninja.translator = {
             "footerlabelgithub": "Проект на GitHub",
 			"footerlabelgithubzip": "zip",
 			"footerlabelsig": "sig",
-            "footerlabelcopyright1": "Копирайт bitaddress.org.",
+            "footerlabelcopyright1": "Копирайт bitaddress.org, The Dash Developers.",
             "footerlabelcopyright2": "Информация о копирайте на JavaScript в исходниках.",
             "footerlabelnowarranty": "Без гарантий.",
 

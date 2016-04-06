@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/dash/paperwallet"
+    "url": "git://github.com/dashpay/paper.dash.org"
   },
   "keywords": [
     "dash address wallet generator"
@@ -30,6 +30,6 @@
   "readmeFilename": "README",
   "gitHead": "3306409b0248847d31221a694d13515a171a87a7",
   "bugs": {
-    "url": "https://github.com/dash/paperwallet/issues"
+    "url": "https://github.com/dashpay/paper.dash.org/issues"
   }
 }

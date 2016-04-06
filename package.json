@@ -1,7 +1,7 @@
 {
   "name": "paper.dash.org",
   "version": "3.1.0",
-  "sha256sum": "2004e6a4ad38886fa6277d7e9c58ac6306c1f9bf2ee415b7365e71899d14142a",
+  "sha256sum": "ca37346a9aa5faf87cf9cc4649269186fdf30cf44e7834d83ec9dfeecab2f3a5",
   "description": "Open Source JavaScript Client-Side Dash Wallet Generator",
   "main": "Gruntfile.js",
   "dependencies": {
@@ -28,7 +28,7 @@
   "contributors": [{"name": "pointbiz"}],
   "license": "MIT",
   "readmeFilename": "README",
-  "gitHead": "3306409b0248847d31221a694d13515a171a87a7",
+  "gitHead": "99519351e655ead836a3aa15a185a6ad17fd9107",
   "bugs": {
     "url": "https://github.com/dashpay/paper.dash.org/issues"
   }

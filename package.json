@@ -1,7 +1,7 @@
 {
   "name": "paper.dash.org",
-  "version": "3.1.0",
-  "sha256sum": "ca37346a9aa5faf87cf9cc4649269186fdf30cf44e7834d83ec9dfeecab2f3a5",
+  "version": "3.1.0-dash",
+  "sha256sum": "61e217ab73a1d74d6de316e8d513fbff8ab0275e9bcf7bf7fc5ac47deab6c21e",
   "description": "Open Source JavaScript Client-Side Dash Wallet Generator",
   "main": "Gruntfile.js",
   "dependencies": {

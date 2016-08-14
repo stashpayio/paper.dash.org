@@ -45,7 +45,7 @@ Notice of Copyrights and Licenses:
 The paper.dash.org project, software and embedded resources are
 copyright The Dash Developers.
 
-The paper.dash.org, Dash name and logo are not part of the open source
+The paper.dash.org name, Dash name and logo are not part of the open source
 license.
 
 The bitaddress.org project, software and embedded resources are

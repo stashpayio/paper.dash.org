@@ -20,7 +20,6 @@
 	Summary of JavaScript functions with a redistributable license:
 	JavaScript function		License
 	*******************		***************
-	Array.prototype.map		Public Domain
 	window.Crypto			BSD License
 	window.SecureRandom		BSD License
 	window.EllipticCurve		BSD License
@@ -30,7 +29,7 @@
 	window.Crypto_scrypt		MIT License
 
 	The bitaddress.org software is available under The MIT License (MIT)
-	Copyright (c) 2011-2013 bitaddress.org (pointbiz)
+	Copyright (c) 2011-2016 bitaddress.org (pointbiz)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
 	associated documentation files (the "Software"), to deal in the Software without restriction, including 
@@ -54,65 +53,6 @@
 	<title>paper.dash.org</title>
 	<meta charset="utf-8">
 
-	<script type="text/javascript">
-// Array.prototype.map function is in the public domain.
-// Production steps of ECMA-262, Edition 5, 15.4.4.19  
-// Reference: http://es5.github.com/#x15.4.4.19  
-if (!Array.prototype.map) {
-	Array.prototype.map = function (callback, thisArg) {
-		var T, A, k;
-		if (this == null) {
-			throw new TypeError(" this is null or not defined");
-		}
-		// 1. Let O be the result of calling ToObject passing the |this| value as the argument.  
-		var O = Object(this);
-		// 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".  
-		// 3. Let len be ToUint32(lenValue).  
-		var len = O.length >>> 0;
-		// 4. If IsCallable(callback) is false, throw a TypeError exception.  
-		// See: http://es5.github.com/#x9.11  
-		if ({}.toString.call(callback) != "[object Function]") {
-			throw new TypeError(callback + " is not a function");
-		}
-		// 5. If thisArg was supplied, let T be thisArg; else let T be undefined.  
-		if (thisArg) {
-			T = thisArg;
-		}
-		// 6. Let A be a new array created as if by the expression new Array(len) where Array is  
-		// the standard built-in constructor with that name and len is the value of len.  
-		A = new Array(len);
-		// 7. Let k be 0  
-		k = 0;
-		// 8. Repeat, while k < len  
-		while (k < len) {
-			var kValue, mappedValue;
-			// a. Let Pk be ToString(k).  
-			//   This is implicit for LHS operands of the in operator  
-			// b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.  
-			//   This step can be combined with c  
-			// c. If kPresent is true, then  
-			if (k in O) {
-				// i. Let kValue be the result of calling the Get internal method of O with argument Pk.  
-				kValue = O[k];
-				// ii. Let mappedValue be the result of calling the Call internal method of callback  
-				// with T as the this value and argument list containing kValue, k, and O.  
-				mappedValue = callback.call(T, kValue, k, O);
-				// iii. Call the DefineOwnProperty internal method of A with arguments  
-				// Pk, Property Descriptor {Value: mappedValue, Writable: true, Enumerable: true, Configurable: true},  
-				// and false.  
-				// In browsers that support Object.defineProperty, use the following:  
-				// Object.defineProperty(A, Pk, { value: mappedValue, writable: true, enumerable: true, configurable: true });  
-				// For best browser support, use the following:  
-				A[k] = mappedValue;
-			}
-			// d. Increase k by 1.  
-			k++;
-		}
-		// 9. return A  
-		return A;
-	};
-}
-	</script>
 	<script type="text/javascript">
 /*!
 * Crypto-JS v2.5.4	Crypto.js
@@ -2883,8 +2823,12 @@ exports.init();
 })(typeof module !== 'undefined' && module['exports'] ? module['exports'] : (window['secrets'] = {}), typeof GLOBAL !== 'undefined' ? GLOBAL : window );
 	</script>
 	<script type="text/javascript">
+// Upstream 'BigInteger' here:
+// Original Author: http://www-cs-students.stanford.edu/~tjw/jsbn/
+// Follows 'jsbn' on Github: https://github.com/jasondavies/jsbn
+// Review and Testing: https://github.com/cryptocoinjs/bigi/
 /*!
-* Basic JavaScript BN library - subset useful for RSA encryption. v1.3
+* Basic JavaScript BN library - subset useful for RSA encryption. v1.4
 * 
 * Copyright (c) 2005  Tom Wu
 * All Rights Reserved.
@@ -2892,13 +2836,16 @@ exports.init();
 * http://www-cs-students.stanford.edu/~tjw/jsbn/LICENSE
 *
 * Copyright Stephan Thomas
-* Copyright bitaddress.org
+* Copyright pointbiz
 */
 
 (function () {
 
 	// (public) Constructor function of Global BigInteger object
 	var BigInteger = window.BigInteger = function BigInteger(a, b, c) {
+		if (!(this instanceof BigInteger))
+			return new BigInteger(a, b, c);
+
 		if (a != null)
 			if ("number" == typeof a) this.fromNumber(a, b, c);
 			else if (b == null && "string" != typeof a) this.fromString(a, 256);
@@ -3829,6 +3776,7 @@ exports.init();
 	// (public) 1/this % m (HAC 14.61)
 	BigInteger.prototype.modInverse = function (m) {
 		var ac = m.isEven();
+		if (this.signum() === 0) throw new Error('division by zero');
 		if ((this.isEven() && ac) || m.signum() == 0) return BigInteger.ZERO;
 		var u = m.clone(), v = this.clone();
 		var a = nbv(1), b = nbv(0), c = nbv(0), d = nbv(1);
@@ -3863,9 +3811,9 @@ exports.init();
 			}
 		}
 		if (v.compareTo(BigInteger.ONE) != 0) return BigInteger.ZERO;
-		if (d.compareTo(m) >= 0) return d.subtract(m);
-		if (d.signum() < 0) d.addTo(m, d); else return d;
-		if (d.signum() < 0) return d.add(m); else return d;
+		while (d.compareTo(m) >= 0) d.subTo(m, d);
+		while (d.signum() < 0) d.addTo(m, d);
+		return d;
 	};
 
 
@@ -5717,19 +5665,23 @@ Bitcoin.ECKey = (function () {
 			this.priv = BigInteger.fromByteArrayUnsigned(input);
 		} else if ("string" == typeof input) {
 			var bytes = null;
-			if (ECKey.isWalletImportFormat(input)) {
-				bytes = ECKey.decodeWalletImportFormat(input);
-			} else if (ECKey.isCompressedWalletImportFormat(input)) {
-				bytes = ECKey.decodeCompressedWalletImportFormat(input);
-				this.compressed = true;
-			} else if (ECKey.isMiniFormat(input)) {
-				bytes = Crypto.SHA256(input, { asBytes: true });
-			} else if (ECKey.isHexFormat(input)) {
-				bytes = Crypto.util.hexToBytes(input);
-			} else if (ECKey.isBase64Format(input)) {
-				bytes = Crypto.util.base64ToBytes(input);
+			try{
+				if (ECKey.isWalletImportFormat(input)) {
+					bytes = ECKey.decodeWalletImportFormat(input);
+				} else if (ECKey.isCompressedWalletImportFormat(input)) {
+					bytes = ECKey.decodeCompressedWalletImportFormat(input);
+					this.compressed = true;
+				} else if (ECKey.isMiniFormat(input)) {
+					bytes = Crypto.SHA256(input, { asBytes: true });
+				} else if (ECKey.isHexFormat(input)) {
+					bytes = Crypto.util.hexToBytes(input);
+				} else if (ECKey.isBase64Format(input)) {
+					bytes = Crypto.util.base64ToBytes(input);
+				}
+			} catch (exc1) {
+				this.setError(exc1);
 			}
-			
+
 			if (ECKey.isBase6Format(input)) {
 				this.priv = new BigInteger(input, 6);
 			} else if (bytes == null || bytes.length != 32) {
@@ -5741,7 +5693,21 @@ Bitcoin.ECKey = (function () {
 		}
 
 		this.compressed = (this.compressed == undefined) ? !!ECKey.compressByDefault : this.compressed;
-		KeyPool.push(this);
+		try {
+			// check not zero
+			if (this.priv != null && BigInteger.ZERO.compareTo(this.priv) == 0) this.setError("Error: BigInteger equal to zero.");
+			// valid range [0x1, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140])
+			var hexKeyRangeLimit = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140";
+			var rangeLimitBytes = Crypto.util.hexToBytes(hexKeyRangeLimit);
+			var limitBigInt = BigInteger.fromByteArrayUnsigned(rangeLimitBytes);
+			if (this.priv != null && limitBigInt.compareTo(this.priv) < 0) this.setError("Error: BigInteger outside of curve range.")
+
+			if (this.priv != null) {
+				KeyPool.push(this);
+			}
+		} catch (exc2) {
+			this.setError(exc2);
+		}
 	};
 
 	ECKey.privateKeyPrefix = 0xCC; // mainnet 0xCC    testnet 0xEF
@@ -5750,6 +5716,15 @@ Bitcoin.ECKey = (function () {
 	* Whether public keys should be returned compressed by default.
 	*/
 	ECKey.compressByDefault = false;
+
+	/**
+	* Set whether the public key should be returned compressed or not.
+	*/
+	ECKey.prototype.setError = function (err) {
+		this.error = err;
+		this.priv = null;
+		return this;
+	};
 
 	/**
 	* Set whether the public key should be returned compressed or not.
@@ -6533,11 +6508,6 @@ input[type=checkbox] { position: relative; z-index: 20; }
 #busyblock.busy { display: block; }
 .hide { display: none; }
 .show { display: block; }
-	
-/* IE8 */
-.qrcodetable { border-width: 0px; border-style: none; border-color: #0000ff; border-collapse: collapse; }
-.qrcodetddark { border-width: 0px; border-style: none; border-color: #0000ff; border-collapse: collapse; padding: 0; margin: 0; width: 2px; height: 2px; background-color: #000000; }
-.qrcodetdlight { border-width: 0px; border-style: none; border-color: #0000ff; border-collapse: collapse; padding: 0; margin: 0; width: 2px; height: 2px; background-color: #ffffff; }
 		
 @media screen 	
 {
@@ -7033,7 +7003,7 @@ input[type=checkbox] { position: relative; z-index: 20; }
 				<div class="tooltip" id="statusprotocolbad">
 					<span class="statuswarn" id="statuslabelprotocolbad">&#9888; Think twice!</span>
 					<span id="statuslabelprotocolbad1">You appear to be running this generator online from a live website. For valuable wallets it is recommended to</span>
-					<a id="statuslabelprotocolbad2" href="https://github.com/dashpay/paper.dash.org/archive/v3.2.0-dash.zip">download</a>
+					<a id="statuslabelprotocolbad2" href="https://github.com/dashpay/paper.dash.org/archive/v3.3.0-dash.zip">download</a>
 					<span id="statuslabelprotocolbad3">the zip file from GitHub and run this generator offline as a local html file.</span>
 					<br /><br /><input type="button" value="OK" class="button" id="statusokprotocolbad" onclick="document.getElementById('statusprotocolbad').style.display = 'none';" />
 				</div>
@@ -7058,7 +7028,7 @@ input[type=checkbox] { position: relative; z-index: 20; }
 					<span class="item"><span id="footerlabeldonations">Donations for original project:</span> <b>1NiNja</b>1bUmhSoTXozBRBEtR8LeF9TGbZBN</span>
 					<span class="item" id="footerlabeltranslatedby"></span>
 					<span class="item"><a href="https://github.com/dashpay/paper.dash.org" target="_blank" id="footerlabelgithub">GitHub Repository</a> 
-						(<a href="https://github.com/dashpay/paper.dash.org/archive/v3.2.0-dash.zip" target="_blank" id="footerlabelgithubzip">zip</a>)</span>
+						(<a href="https://github.com/dashpay/paper.dash.org/archive/v3.3.0-dash.zip" target="_blank" id="footerlabelgithubzip">zip</a>)</span>
 				</div>
 			</div>
 			<div class="copyright">
@@ -7591,29 +7561,7 @@ ninja.publicKey = {
 			return canvas;
 		},
 
-		// generate a QRCode and return it's representation as an Html table 
-		createTableHtml: function (text) {
-			var typeNumber = qrC.getTypeNumber(text);
-			var qr = new QRCode(typeNumber, QRCode.ErrorCorrectLevel.H);
-			qr.addData(text);
-			qr.make();
-			var tableHtml = "<table class='qrcodetable'>";
-			for (var r = 0; r < qr.getModuleCount() ; r++) {
-				tableHtml += "<tr>";
-				for (var c = 0; c < qr.getModuleCount() ; c++) {
-					if (qr.isDark(r, c)) {
-						tableHtml += "<td class='qrcodetddark'/>";
-					} else {
-						tableHtml += "<td class='qrcodetdlight'/>";
-					}
-				}
-				tableHtml += "</tr>";
-			}
-			tableHtml += "</table>";
-			return tableHtml;
-		},
-
-		// show QRCodes with canvas OR table (IE8)
+		// show QRCodes with canvas
 		// parameter: keyValuePair 
 		// example: { "id1": "string1", "id2": "string2"}
 		//		"id1" is the id of a div element where you want a QRCode inserted.
@@ -7627,10 +7575,7 @@ ninja.publicKey = {
 						document.getElementById(key).appendChild(qrC.createCanvas(value, sizeMultiplier));
 					}
 				}
-				catch (e) {
-					// for browsers that do not support canvas (IE8)
-					document.getElementById(key).innerHTML = qrC.createTableHtml(value);
-				}
+				catch (e) {	}
 			}
 		}
 	};
@@ -8761,7 +8706,7 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"detaila1": "An important part of creating a Dash wallet is ensuring the random numbers used to create the wallet are truly random. Physical randomness is better than computer generated pseudo-randomness. The easiest way to generate physical randomness is with dice. To create a Dash private key you only need one six sided die which you roll 99 times. Stopping each time to record the value of the die. When recording the values follow these rules: 1=1, 2=2, 3=3, 4=4, 5=5, 6=0. By doing this you are recording the big random number, your private key, in B6 or base 6 format. You can then enter the 99 character base 6 private key into the text field above and click View Details. You will then see the Dash address associated with your private key. You should also make note of your private key in WIF format since it is more widely used." //TODO: please translate
 	};
 })(ninja.translator);
-﻿(function (translator) {
+(function (translator) {
 	translator.translations["hu"] = {
 		// 02-MAR-2014 16:57
 		// javascript alerts or messages
@@ -8773,8 +8718,8 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"brainalertpassphrasetooshort": "A megadott jelmondat túl rövid.\n\n",
 		"brainalertpassphrasewarning": "Figyelem: Fontos, hogy erős jelmondatot válasszon, mert különben a jelmondatot nyers erővel feltörhetik és a Dashjait ellophatják.",
 		"brainalertpassphrasedoesnotmatch": "A jelmondat és az ellenőrző jelmondat nem azonos.",
-		"detailalertnotvalidprivatekey": "A beadott szöveg nem érvénytelen Privát Kulcs",
-		"detailconfirmsha256": "Az ön által beadott szöveg érvénytelen Privát Kulcs!\n\nSzeretné a beadott szöveget jelmondatként kezelni, és annak SHA256 zanzájából egy Privát Kulcsot előállítani?\n\nFigyelem: Fontos, hogy erős jelmondatot válasszon, mert különben a jelmondatot nyers erővel feltörhetik és a Dashjait ellophatják.",
+		"detailalertnotvalidprivatekey": "A megadott szöveg nem érvényes Privát Kulcs",
+		"detailconfirmsha256": "Az ön által megadott szöveg érvénytelen Privát Kulcs!\n\nSzeretné a megadott szöveget jelmondatként kezelni, és annak SHA256 zanzájából egy Privát Kulcsot előállítani?\n\nFigyelem: Fontos, hogy erős jelmondatot válasszon, mert különben a jelmondatot nyers erővel feltörhetik és a Dashjait ellophatják.",
 		"bip38alertincorrectpassphrase": "Érvénytelen jelmondat a titkosított privát kulcshoz.",
 		"bip38alertpassphraserequired": "A BIP38 kulcshoz jelmondat szükséges",
 		"vanityinvalidinputcouldnotcombinekeys": "Érvénytelen bemenet. A kulcsok nem tartoznak össsze.",
@@ -8784,7 +8729,7 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"vanityalertinvalidinputprivatekeysmatch": "Érvénytelen bemenet. A két megadott privát kulcs azonos. Két különböző kulcs bevitelére van szükség.",
 
 		// header and menu html
-		"tagline": "Nyílt forráskódú, kliens oldali JavaScript, Dash pénztárca előállítására",
+		"tagline": "Nyílt forráskódú, ügyfél oldali JavaScript Dash tárca készítő program",
 		"generatelabelbitcoinaddress": "A Dash cím előállítása...",
 		"generatelabelmovemouse": "MOZGASSA az egeret, ha fokozni szeretné a véletlenszerűséget...",
 		"generatelabelkeypress": "VAGY gépeljen be néhány véletlenszerű karaktert ebbe a szövegdobozba",
@@ -8793,7 +8738,7 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"bulkwallet": "Tömeges pénztárca",
 		"brainwallet": "Fejben tartott pénztárca",
 		"vanitywallet": "Kérkedő pénztárca",
-		"splitwallet": "Részekre bontott ~",
+		"splitwallet": "Felosztott tárca",
 		"detailwallet": "A pénztárca részletei",
 
 		// footer html
@@ -8809,40 +8754,40 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"footerlabelnowarranty": "Garancia nincs.",
 
 		// status html
-		"statuslabelcryptogood": "&#10004; Good!", //TODO: please translate
-		"statuslabelcryptogood1": "Your browser can generate cryptographically random keys using window.crypto.getRandomValues", //TODO: please translate
-		"statusokcryptogood": "OK", //TODO: please translate
-		"statuslabelcryptobad": "&times; Oh no!", //TODO: please translate
-		"statuslabelcryptobad1": "Your browser does NOT support window.crypto.getRandomValues. You should use a more modern browser with this generator to increase the security of the keys generated.",
-		"statusokcryptobad": "OK", //TODO: please translate
-		"statuslabelunittestsgood": "&#10004; Good!", //TODO: please translate
-		"statuslabelunittestsgood1": "All synchronous unit tests passed.", //TODO: please translate
-		"statusokunittestsgood": "OK", //TODO: please translate
-		"statuslabelunittestsbad": "&times; Oh no!", //TODO: please translate
-		"statuslabelunittestsbad1": "Some synchronous unit tests DID NOT pass. You should find another browser to use with this generator.", //TODO: please translate
-		"statusokunittestsbad": "OK", //TODO: please translate
-		"statuslabelprotocolgood": "&#10004; Good!", //TODO: please translate
-		"statuslabelprotocolgood1": "You are running this generator from your local computer. <br />Tip: Double check you are offline by trying ", //TODO: please translate
-		"statusokprotocolgood": "OK", //TODO: please translate
-		"statuslabelprotocolbad": "&#9888; Think twice!", //TODO: please translate
-		"statuslabelprotocolbad1": "You appear to be running this generator online from a live website. For valuable wallets it is recommended to", //TODO: please translate
-		"statuslabelprotocolbad2": "download", //TODO: please translate
-		"statuslabelprotocolbad3": "the zip file from GitHub and run this generator offline as a local html file.", //TODO: please translate
-		"statusokprotocolbad": "OK", //TODO: please translate
-		"statuslabelkeypool1": "This is a log of all the Dash Addresses and Private Keys you generated during your current session. Reloading the page will create a new session.", //TODO: please translate
-		"statuskeypoolrefresh": "Refresh", //TODO: please translate
-		"statusokkeypool": "OK", //TODO: please translate
+		"statuslabelcryptogood": "&#10004; Helyes!", 
+		"statuslabelcryptogood1": "A böngészője képes kriptográfiai szempontból véletlen kulcsok generálására (a window.crypto.getRandomValues metódus támogatott)", 
+		"statusokcryptogood": "Rendben", 
+		"statuslabelcryptobad": "&times; Ó jaj!", 
+		"statuslabelcryptobad1": "Böngészője NEM támogatja a window.crypto.getRandomValues metódust. A metódust támogató, modernebb böngészőt kell használnia, ha növelni szeretné a generált kulcsok biztonsági szintjét!",
+		"statusokcryptobad": "Rendben", 
+		"statuslabelunittestsgood": "&#10004; Helyes!", 
+		"statuslabelunittestsgood1": "Minden szinkron unit-teszt sikeres.", 
+		"statusokunittestsgood": "Rendben", 
+		"statuslabelunittestsbad": "&times; Ó, jaj!", 
+		"statuslabelunittestsbad1": "Néhány szinkron unit-teszt NEM volt sikeres. Jobb, ha egy másik böngészőt használ ehhez a generátorhoz!", 
+		"statusokunittestsbad": "Rendben", 
+		"statuslabelprotocolgood": "&#10004; Helyes!", 
+		"statuslabelprotocolgood1": "Ezt a generátort a helyi gépről futtatja. <br />Tipp: Győzdjön meg róla, hogy nem kapcsolódik a hálózatra: ", 
+		"statusokprotocolgood": "Rendben", 
+		"statuslabelprotocolbad": "&#9888; Gondolja át!",
+		"statuslabelprotocolbad1": "A jelek szerint élő honlapról futtatja a generátort. Használható tárcák készítéséhez javasoljuk, hogy ", 
+		"statuslabelprotocolbad2": "töltse le", 
+		"statuslabelprotocolbad3": "a GitHub-on található zip állományt és futtassa a generátort offline módban, helyi html állományként.", 
+		"statusokprotocolbad": "Rendben", 
+		"statuslabelkeypool1": "Az ügymenet során készített valamennyi Dash cím és privát kulcs naplója. A lap újratöltésével új ügymenetet indíthat.", 
+		"statuskeypoolrefresh": "Frissítés", 
+		"statusokkeypool": "Rendben", 
 
 		// single wallet html
 		"newaddress": "Új cím előállítása",
 		"singleprint": "Nyomtatás",
 		"singlelabelbitcoinaddress": "Dash cím:",
-		"singlelabelprivatekey": "Privát kulcs (WIF, tárca import formátumban):",
-		"singletip1": "<b>Egy Dash pénztárca</b> nem más, mint egy Dash címből és a hozzá tartozó privát kulcsból álló számpár. Egy ilyen pénztárcát állítottunk elő és jelenítettünk meg fent az Ön számára a Web böngészőben.",
-		"singletip2": "<b>A pénztárca biztonságos megőrzése</b> érdekében nyomtassa ki vagy más módon rögzítse a Dash címet és privát kulcsot. Fontos, hogy a privát kulcsból készítsen másolatot, és tárolja biztonságos helyen. Ez a webhely nem tud az ön privát kulcsairól. Ha ismeri a PGP-t, akkor egyben letöltheti az egész web lapot, és ellenőrizheti, hogy a webhely szerzője álatal írt valódi változatot töltötte-e le. Ehhez össze kell hasonlítania a HTML-ből képzett SHA256 zanzát a webhely láblécében hivatkozott, aláírt verzió történetben lévő SHA256 zanzával. Ha elhagyja/megfrissíti a webhelyet vagy megnyomja az 'Új cím előállítása' gombot, akkor egy új privát kulcs áll elő, és az előzőleg megjelenített privát kulcs elvész. A Dash címhez tartozó privát kulcsot titokban kell tartani. Bárki, aki megszerzi ezt a kulcsot, el tudja költeni az ehhez a címhez tartozó összes Dash. Ha kinyomtatja a pénztárcát, akkor tárolja egy villámzáras vízhatlan nylon-zacskóban. A papír pénztárcát tekintse úgy, mintha pénz lenne.",
-		"singletip3": "<b>Pénzt úgy tehet</b> a pénztárcájába, hogy másokkal Dash küldet erre a Dash címre.",
-		"singletip4": "<b>A pénztárca egyenlegét</b> úgy kérdezheti le, hogy elmegy a explorer.dash.org weblapokra, és ott beadja ezt a Dash címet.",
-		"singletip5": "<b>Ha el akarja költeni a Dash,</b> beimportálja a privát kulcsot a p2p kliens pénztárcájába. Ne feledje, hogy miután beimportálta a kulcsot a p2p Dash kliensbe, a kulcsot a p2p kliens a pénztárcában lévő többi kulccsal együtt tárolja. Pénz küldésekor a visszajáró pénzt a p2p kliens pénztárcájában lévő másik Dash címre fogják küldeni. Ekkor biztonsági másolatot kell készítenie a p2p kliens pénztárcáról, és a másolatot biztos helyen kell őriznie, mivel a maradék Dash a pénztárca kulcsai tárolják. Satoshi tanácsa, hogy pénztárcát soha ne töröljünk.",
+		"singlelabelprivatekey": "Privát kulcs:",
+		"singletip1": "<b>A Dash pénztárca</b> nem más, mint egy Dash címből és a hozzá tartozó privát kulcsból álló számpár. Egy ilyen pénztárcát állítottunk elő és jelenítettünk meg fent az Ön számára a Web böngészőben.",
+		"singletip2": "<b>A pénztárca biztonságos megőrzése</b> érdekében nyomtassa ki vagy más módon rögzítse a Dash címet és privát kulcsot. Fontos, hogy a privát kulcsból készítsen másolatot, és tárolja biztonságos helyen. Ez a webhely nem tárol az ön privát kulcsaival kapcsolatos információt. Ha ismeri a PGP-t, akkor egyben letöltheti az egész honlapot, és ellenőrizheti, hogy a webhely szerzője álatal írt valódi változatot töltötte-e le. Ehhez össze kell hasonlítania a HTML-ből képzett SHA256 zanzát a webhely láblécében hivatkozott, digitálisan aláírt verzió történetben lévő SHA256 zanzával. Amennyiben elhagyja vagy frissíti a webhelyet illetve megnyomja az 'Új cím előállítása' gombot, akkor új privát kulcs készül és az előzőleg megjelenített privát kulcs elvész. A Dash címhez tartozó privát kulcsot titokban kell tartani. Bárki, aki megszerzi ezt a kulcsot, el tudja költeni a címhez tartozó valamennyi . Ha kinyomtatja a pénztárcát, akkor tárolja egy villámzáras vízhatlan nejlonzacskóban. A papírtárcát kezelje úgy, mintha pénz lenne.",
+		"singletip3": "<b>Pénzt úgy tehet</b> a pénztárcájába, hogy másokkal Dashokat küldet erre a Dash címre.",
+		"singletip4": "<b>A pénztárca egyenlegét</b> úgy kérdezheti le, hogy elmegy a explorer.dash.org weblapokra, és ott begépeli ezt a Dash címet.",
+		"singletip5": "<b>Ha el akarja költeni a Dashjait,</b> akkor menjen a explorer.dash.org weblapra, és a privát kulcson lévő teljes egyenleget töltse át (sweep) a weblapon lévő számlájára. A pénzt úgy is elköltheti, hogy letölti valamelyik népszerű p2p Dash klienst, és beimportálja a privát kulcsot a p2p kliens pénztárcájába. Ne feledje, hogy miután beimportálta a kulcsot a p2p Dash kliensbe, a kulcsot a p2p kliens a pénztárcában lévő többi kulccsal együtt tárolja. Pénz küldésekor a visszajáró pénzt a p2p kliens pénztárcájában lévő másik Dash címre fogják küldeni. Ekkor biztonsági másolatot kell készítenie a p2p kliens pénztárcáról, és a másolatot biztos helyen kell őriznie, mivel a maradék Dashjait a pénztárca kulcsai tárolják. Satoshi tanácsa, hogy pénztárcát soha ne töröljünk.",
 
 		// paper wallet html
 		"paperlabelhideart": "A grafika elrejtése?",
@@ -8928,9 +8873,9 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"detaillabelprivmini": "Mini formátumú Privát Kulcs (22, 26 vagy 30 karakter, amely egy 'S'-sel kezdődik):",
 		"detaillabelpassphrase": "BIP38 jelmondat",
 		"detailbip38decryptbutton": "BIP38 dekódolás",
-		"detailbip38encryptbutton": "Encrypt BIP38", //TODO: please translate
+		"detailbip38encryptbutton": "BIP38 titkosítás", 
 		"detaillabelq1": "Hogyan lehet dobókockával pénztárcát készíteni? Mit jelent a B6 formátum?",
-		"detaila1": "Egy Dash pénztárca előállításakor nagyon fontos, hogy a felhasznált véletlen számok valóban véletlenek legyenek. A fizikai véletlen jobb, mint a számítógéppel előállított pszeudo-véletlen. Fizikai véletlen a legegyszerűbben egy dobókockával állítható elő. Ha szeretne egy Dash privát címet előállítani, akkor csupán egy dobókockára van szüksége, mellyel 99-szer kell dobni. Jegyezze fel minden egyes dobása eredményét. Az eredmények feljegyzésekor a következő szabályokat kövesse: 1->1, 2->2, 3->3, 4->4, 5->5, 6->0. Ha így tesz, akkor a privát kulcshoz tartozó véletlen számot B6 formátumban, vagyis 6-os számrendszerben rögzíti. Írja be ezt a 99 karakterből álló 6-os számrendszerbeli privát kulcsot a fenti szövegmezőbe, majd nyomja meg a 'Részletek megjelenítése' gombot. Ekkor megjelenik az a Dash cím, amely ehhez a privát kulcshoz tartozik. Érdemes felírni a WIF formátumú privát kulcsot is, mivel ezt szélesebb körben használják."
+		"detaila1": "A Dash pénztárca előállításakor nagyon fontos, hogy a felhasznált véletlen számok valóban véletlenek legyenek. A fizikai véletlen jobb, mint a számítógéppel előállított pszeudo-véletlen. Fizikai véletlen a legegyszerűbben egy dobókockával állítható elő. Ha szeretne egy Dash privát címet előállítani, akkor csupán egy dobókockára van szüksége, mellyel 99-szer kell dobni. Jegyezze fel minden egyes dobása eredményét. Az eredmények feljegyzésekor a következő szabályokat kövesse: 1->1, 2->2, 3->3, 4->4, 5->5, 6->0. Ha így tesz, akkor a privát kulcshoz tartozó véletlen számot B6 formátumban, vagyis 6-os számrendszerben rögzíti. Írja be ezt a 99 karakterből álló 6-os számrendszerbeli privát kulcsot a fenti szövegmezőbe, majd nyomja meg a 'Részletek megjelenítése' gombot. Ekkor megjelenik az a Dash cím, amely ehhez a privát kulcshoz tartozik. Érdemes felírni a WIF formátumú privát kulcsot is, mivel ezt szélesebb körben használják."
 	};
 })(ninja.translator);
 ﻿(function (translator) {
@@ -9269,24 +9214,24 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"detaila1": "Dashのアドレスの生成には一番大事なことが、アドレス生成に使われている乱数が本当にランダムなのかというところです。自然界に起きる物理的なランダムさはパソコンが生成する(似非)ランダムさよりは優れている。物理的なランダムさを作る一番簡単な方法はサイコロを振ることです。Dashのプライベートキーを生成するには、6面のサイコロを99回振って、毎回結果を記載していきます。規則として1⇒1, 2⇒2, 3⇒3, 4⇒4, 5⇒5, 6⇒0というように、6が出る度に「0」と記載して下さい。99桁の6進数字列ができたら、上記の入力欄に入れて、「詳細を表示」ボタンを押して下さい。これでWIF形式のプライベートキーやそれと紐づくDashアドレスが表示されます。これらを記載し、通常生成されたDashアドレスと同じように保管しておいて下さい。",
 	};
 })(ninja.translator);
-﻿(function (translator) {
+(function (translator) {
 	translator.translations["pt-br"] = {
 		// javascript alerts or messages
-		"testneteditionactivated": "EDIÇÃO DO TESTNET ATIVADA",
+		"testneteditionactivated": "EDIÇÃO DA TESTNET ATIVADA",
 		"paperlabelbitcoinaddress": "Endereço Dash:",
 		"paperlabelprivatekey": "Chave privada:",
 		"paperlabelencryptedkey": "Chave privada criptografada (Senha necessária)",
-		"bulkgeneratingaddresses": "Generando endereços... ",
+		"bulkgeneratingaddresses": "Gerando endereços... ",
 		"brainalertpassphrasetooshort": "A senha introduzida é pequena demais.\n\n",
-		"brainalertpassphrasewarning": "Aviso: É importante que escolha uma senha forte, para evitar ataques de força bruta que tentem adivinhar sua senha e roubar seus Dash.",
+		"brainalertpassphrasewarning": "Aviso: É importante que você escolha uma senha forte, para evitar ataques de força bruta que tentem adivinhar sua senha e roubar seus Dash.",
 		"brainalertpassphrasedoesnotmatch": "As senhas digitadas não são iguais.",
 		"detailalertnotvalidprivatekey": "O texto que você digitou não é uma chave privada válida",
-		"detailconfirmsha256": "O texto que você digitou não é uma chave privada válida\n\nQuer usar esse texto como se fosse uma senha e gerar uma chave privada usando um hash SHA256 dessa senha?\n\nAviso: É importante escolher uma senha forte para evitar ataques de força bruta que tentem adivinhá-la e roubar seus Dash.",
+		"detailconfirmsha256": "O texto que você digitou não é uma chave privada válida\n\nDeseja usar esse texto como se fosse uma senha e gerar uma chave privada usando um hash SHA256 dessa senha?\n\nAviso: É importante escolher uma senha forte para evitar ataques de força bruta que tentem adivinhá-la e roubar seus Dash.",
 		"bip38alertincorrectpassphrase": "Senha incorreta para essa chave privada criptografada.",
 		"bip38alertpassphraserequired": "Senha necessária para a chave BIP38",
 		"vanityinvalidinputcouldnotcombinekeys": "Entrada inválida. Não foi possível combinar as chaves.",
-		"vanityalertinvalidinputpublickeysmatch": "Entrada inválida. As chaves públicas de ambas entradas são iguais. Você deve inserir duas chaves diferentes.",
-		"vanityalertinvalidinputcannotmultiple": "Entrada inválida. Não é possível multiplicar duas chaves públicas. Clique em 'Somar' para somar duas chaves públicas para adquirir um endereço Dash.",
+		"vanityalertinvalidinputpublickeysmatch": "Entrada inválida. As chaves públicas de ambas as entradas são iguais. Você deve inserir duas chaves diferentes.",
+		"vanityalertinvalidinputcannotmultiple": "Entrada inválida. Não é possível multiplicar duas chaves públicas. Clique em 'Somar' e some duas chaves públicas para adquirir um endereço Dash.",
 		"vanityprivatekeyonlyavailable": "Disponível apenas quando se combinam duas chaves privadas",
 		"vanityalertinvalidinputprivatekeysmatch": "Entrada inválida. As chaves privadas de ambas as entradas são iguais. Você deve inserir duas chaves diferentes.",
 
@@ -9300,7 +9245,7 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"bulkwallet": "Múltiplos endereços",
 		"brainwallet": "Carteira mental",
 		"vanitywallet": "Carteira personalizada",
-		"splitwallet": "Split Wallet", //TODO: please translate
+		"splitwallet": "Carteira fracionada",
 		"detailwallet": "Detalhes da carteira",
 
 		// footer html
@@ -9316,42 +9261,42 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"footerlabelnowarranty": "Sem garantia.",
 
 		// status html
-		"statuslabelcryptogood": "&#10004; Good!", //TODO: please translate
+		"statuslabelcryptogood": "&#10004; Boa!",
 		"statuslabelcryptogood1": "Your browser can generate cryptographically random keys using window.crypto.getRandomValues", //TODO: please translate
-		"statusokcryptogood": "OK", //TODO: please translate
-		"statuslabelcryptobad": "&times; Oh no!", //TODO: please translate
+		"statusokcryptogood": "OK", 
+		"statuslabelcryptobad": "&times; Oh não!", 
 		"statuslabelcryptobad1": "Your browser does NOT support window.crypto.getRandomValues. You should use a more modern browser with this generator to increase the security of the keys generated.",
-		"statusokcryptobad": "OK", //TODO: please translate
-		"statuslabelunittestsgood": "&#10004; Good!", //TODO: please translate
+		"statusokcryptobad": "OK", 
+		"statuslabelunittestsgood": "&#10004; Boa!",
 		"statuslabelunittestsgood1": "All synchronous unit tests passed.", //TODO: please translate
-		"statusokunittestsgood": "OK", //TODO: please translate
-		"statuslabelunittestsbad": "&times; Oh no!", //TODO: please translate
+		"statusokunittestsgood": "OK",
+		"statuslabelunittestsbad": "&times; Oh não!", 
 		"statuslabelunittestsbad1": "Some synchronous unit tests DID NOT pass. You should find another browser to use with this generator.", //TODO: please translate
-		"statusokunittestsbad": "OK", //TODO: please translate
-		"statuslabelprotocolgood": "&#10004; Good!", //TODO: please translate
+		"statusokunittestsbad": "OK", 
+		"statuslabelprotocolgood": "&#10004; Boa!", 
 		"statuslabelprotocolgood1": "You are running this generator from your local computer. <br />Tip: Double check you are offline by trying ", //TODO: please translate
-		"statusokprotocolgood": "OK", //TODO: please translate
-		"statuslabelprotocolbad": "&#9888; Think twice!", //TODO: please translate
+		"statusokprotocolgood": "OK", 
+		"statuslabelprotocolbad": "&#9888; Pense duas vezes!", 
 		"statuslabelprotocolbad1": "You appear to be running this generator online from a live website. For valuable wallets it is recommended to", //TODO: please translate
-		"statuslabelprotocolbad2": "download", //TODO: please translate
+		"statuslabelprotocolbad2": "download", 
 		"statuslabelprotocolbad3": "the zip file from GitHub and run this generator offline as a local html file.", //TODO: please translate
-		"statusokprotocolbad": "OK", //TODO: please translate
+		"statusokprotocolbad": "OK", 
 		"statuslabelkeypool1": "This is a log of all the Dash Addresses and Private Keys you generated during your current session. Reloading the page will create a new session.", //TODO: please translate
-		"statuskeypoolrefresh": "Refresh", //TODO: please translate
-		"statusokkeypool": "OK", //TODO: please translate
+		"statuskeypoolrefresh": "Atualizar", 
+		"statusokkeypool": "OK",
 
 		// single wallet html
 		"newaddress": "Gerar endereço",
 		"singleprint": "Imprimir",
 		"singlelabelbitcoinaddress": "Endereço Dash",
 		"singlelabelprivatekey": "Chave privada (Wallet Import Format):",
-		"singletip1": "<b>Uma carteira Dash</b> é tão simples quanto um simples pareamento de um endereço Dash com a sua chave privada Dash correspondente. Essa carteira foi gerada para você em seu navegador web e está sendo exibida acima.",
-		"singletip2": "<b>Para proteger essa carteira</b> você deve imprimir ou anotar/salvar o endereço Dash e a chave privada. É importante que você faça uma cópia de segurança da sua chave privada e armazene-a em um local seguro. Esse site não toma conhecimento da sua chave privada. Se você for familiar com PGP, você pode baixar essa pagina HTML tudo-em-um e verificar se você tem uma versão autêntica do autor deste site ao fazer a correspondência do hash SHA256 deste HTML com o hash SHA256 disponível na versão assinada do documento linkado no rodapé deste site. Se você sair/atualizar essa página ou apertar o botão Gerar Novo Endereço, então uma nova chave privada será gerada e a chave exibida anteriormente não será recuperável.	A sua chave privada Dash deve ser mantida como um segredo. Qualquer pessoa que tiver acesso a ela poderá gastar todos os seus Dash associados com aquele endereço. Se você imprimir sua carteira, armazene-a em um saco plástico selado para mantê-la longe da água. Trate uma carteira em papel como se fosse dinheiro.",
+		"singletip1": "<b>Uma carteira Dash</b> nada mais é do que um endereço Dash e a sua chave privada Dash correspondente. Essa carteira foi gerada para você em seu navegador web e está sendo exibida acima.",
+		"singletip2": "<b>Para proteger essa carteira</b> você deve imprimir ou anotar/salvar o endereço Dash e a sua chave privada correspondente. É importante que você faça uma cópia de segurança da sua chave privada e armazene-a em um local seguro. Esse site não toma conhecimento da sua chave privada. Se você for familiar com criptografia PGP, você pode baixar essa página HTML em um arquivo único e verificar se você tem uma versão autêntica do autor deste site ao fazer a correspondência do hash SHA256 deste HTML com o hash SHA256 disponível na versão assinada do arquivo contido no link no rodapé deste site. Se você sair/atualizar essa página ou apertar o botão Gerar Novo Endereço, então uma nova chave privada será gerada e a chave exibida anteriormente não será recuperável.	A sua chave privada Dash deve ser mantida em um segredo. Qualquer pessoa que tiver acesso a ela poderá gastar todos os seus  associados com aquele endereço. Se você imprimir sua carteira, armazene-a em um saco plástico selado para mantê-la longe da água. Trate sua carteira em papel como se fosse dinheiro.",
 		"singletip3": "<b>Adicione fundos</b> para essa carteira ao indicar para outras pessoas enviarem Dash para o seu endereço Dash.",
-		"singletip4": "<b>Verifique seu saldo</b> visitando os sites explorer.dash.org e digitando o seu endereço Dash.",
-		"singletip5": "<b>Gaste seus Dash</b> importar sua chave privada para a carteira do aplicativo. Tenha em mjente que quando você importa uma chave única para um cliente Dash p2p e gasta seus fundos, sua chave será agrupada com outras chavfes privadas no aplicativo de carteira. Quando você realizar uma transação o seu troco será enviado para outro endereço Dash dentro do seu aplicativo de carteira. Você deve então fazer backup da sua carteira em seu aplicativo e mantê-la em segurança, visto que seus Dash remanescentes agora serão armazenados nela. Um conselho do Satoshi Nakamoto é de que uma carteira nunca deve ser apagada.",
-		"singleshare": "COMPARTILHE", //TODO: please translate
-		"singlesecret": "SECRETA", //TODO: please translate
+		"singletip4": "<b>Verifique seu saldo</b> visitando o site explorer.dash.org e digitando o seu endereço Dash.",
+		"singletip5": "<b>Gaste seus Dash</b> visitando o site explorer.dash.org e esvaziando completamente o seu saldo de sua chave privada para sua conta no site. Você também pode gastar seus fundos ao baixar um cliente Dash p2p popular e importar sua chave privada para a carteira do aplicativo. Tenha em mente que quando você importa uma chave única para um cliente Dash p2p e gasta seus fundos, sua chave será agrupada com outras chavfes privadas no aplicativo de carteira. Quando você realizar uma transação o seu troco será enviado para outro endereço Dash dentro do seu aplicativo de carteira. Você deve então fazer backup da sua carteira em seu aplicativo e mantê-la em segurança, visto que seus Dash remanescentes agora serão armazenados nela. Um conselho do Satoshi Nakamoto é de que uma carteira nunca deve ser apagada.",
+		"singleshare": "COMPARTILHE", 
+		"singlesecret": "SECRETA", 
 
 		// paper wallet html
 		"paperlabelhideart": "Ocultar figura",
@@ -9369,7 +9314,7 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"bulkgenerate": "Gerar",
 		"bulkprint": "Imprimir",
 		"bulklabelcsv": "Valores separados por vírgula:",
-		"bulklabelformat": "Índice,Dirección,Clave privada (formato para importar)",
+		"bulklabelformat": "Índice,Endereço,Chave privada (formato para importar)",
 		"bulklabelq1": "¿Por qué debo usar \"Direcciones en masa\" para aceptar Dash en mi web?",
 		"bulka1": "La forma tradicional de aceptar Dash en tu web requiere tener instalado el cliente oficial de Dash (\"dashd\"). Sin embargo muchos servicios de hosting no permiten instalar dicho cliente. Además, ejecutar el cliente en tu servidor supone que las claves privadas están también en el servidor y podrían ser comprometidas en caso de intrusión. Al usar este mecanismo, puedes subir al servidor sólo las dirección de Dash y no las claves privadas. De esta forma no te tienes que preocupar de que alguien robe la cartera si se cuelan en el servidor.",
 		"bulklabelq2": "¿Cómo uso \"Direcciones en masa\" para aceptar Dash en mi web?",
@@ -9422,15 +9367,16 @@ ninja.foreachSerialized = function (collection, whatToDo, onComplete) {
 		"detaillabelbitcoinaddresscomp": "Endereço Dash (comprimido):",
 		"detaillabelpublickey": "Chave pública (130 caracteres [0-9A-F]):",
 		"detaillabelpublickeycomp": "Chave pública (comprimida, 66 caracteres [0-9A-F]):",
-		"detaillabelprivwif": "Chave privada para importação<br />51 caracteres em base58, inicia com um",
-		"detaillabelprivwifcomp": "Chave privada para importação<br />comprimida, 52 caracteres em base58, inicia com",
+		"detaillabelprivwif": "Chave privada para importação (51 caracteres em base58, inicia com um",
+		"detaillabelprivwifcomp": "Chave privada para importação (comprimida, 52 caracteres em base58, inicia com",
+		"detailcompwifprefix": "'X'",
 		"detaillabelprivhex": "Chave privada em formato hexadecimal (64 caracteres [0-9A-F]):",
 		"detaillabelprivb64": "Chave privada em base64 (44 caracteres):",
 		"detaillabelprivmini": "Chave privada en formato mini (22, 26 ou 30 caracteres, inicia com 'S'):",
 		"detaillabelpassphrase": "Senha BIP38",
-		"detailbip38decryptbutton": "Desencriptar BIP38",
-		"detailbip38encryptbutton": "Encrypt BIP38", //TODO: please translate
-		"detaillabelq1": "Como eu faço uma carteira usando um dado? O que é B6?",
+		"detailbip38decryptbutton": "Descriptografar BIP38",
+		"detailbip38encryptbutton": "Criptografar em BIP38", 
+		"detaillabelq1": "Como eu faço uma carteira usando um dado? O que é o formato B6?",
 		"detaila1": "Uma parte importante ao criar um carteira Dash é se assegurar que os números aleatórios usados para criar a carteira sejam realmente aleatórios. A aleatoriedade física é melhor do que a pseudo-aleatoriedade gerada por computador. A maneira mais fácil de gerar aleatoriedade física é com dados. Para criar um chave privada Dash você precisa de apenas um dado de seis lados, o qual você jogará 99 vezes. A cada jogada, anote o valor do dado. Ao anotar os valores, siga as seguintes regras: 1=1, 2=2, 3=3, 4=4, 5=5, 6=0. Ao fazer isso, você está anotando esse grande número aleatório, sua chave privada, no formato base 6 (B6). Você pode então digitar essa chave privada em base 6 contendo 99 caracteres no campo de texto acima e clicar em Ver Detalhes. Você então verá o endereço Dash associado com sua chave privada. Você deve também anotar sua chave privada no formato WIF, já que ele é mais amplamente utilizado."
 	};
 })(ninja.translator);
@@ -10426,7 +10372,10 @@ ninja.wallets.vanitywallet = {
 
 		keyToECKeyWithBrain: function (key) {
 			var btcKey = new Bitcoin.ECKey(key);
-			if (btcKey.priv == null) {
+			if (btcKey.error != null) {
+				alert(translator.get("detailalertnotvalidprivatekey") + "\n" + btcKey.error);
+			}
+			else if (btcKey.priv == null) {
 				// enforce a minimum passphrase length
 				if (key.length >= wallets.brainwallet.minPassphraseLength) {
 					// Deterministic Wallet confirm box to ask if user wants to SHA256 the input to get a private key
@@ -10803,7 +10752,7 @@ ninja.wallets.splitwallet = {
 			}
 			testResults += passCount + " of " + testCount + " synchronous tests passed";
 			if (passCount < testCount) {
-				testResults += " <b>" + (testCount - passCount) + " unit test(s) failed</b>";
+				testResults += "<br/><b>" + (testCount - passCount) + " unit test(s) failed</b>";
 			}
 			if (showOutput) {
 				div.innerHTML = "<h3>Unit Tests</h3><div id=\"unittestresults\">" + testResults + "<br/><br/></div>";
@@ -11389,6 +11338,279 @@ ninja.wallets.splitwallet = {
 					|| pool[0].getBitcoinWalletImportFormat() != keyUncompressed
 					|| pool[1].getBitcoinWalletImportFormat() != keyCompressed
 				) {
+					return false;
+				}
+				return true;
+			},
+
+			//BigInteger tests
+			testBigIntegerShouldWorkWithoutNew: function () {
+				var bi = BigInteger('12345')
+				if (bi.toString(10) != '12345') {
+					return false;
+				}
+				return true;
+			},
+			testBigIntegerShouldWorkWithStringInput: function () {
+				if (new BigInteger('12345').toString(16) != '3039') return false;
+				if (new BigInteger('29048849665247').toString(16) != '1a6b765d8cdf') return false;
+				if (new BigInteger('-29048849665247').toString(16) != '-1a6b765d8cdf') return false;
+				if (new BigInteger('1A6B765D8CDF', 16).toString(16) != '1a6b765d8cdf') return false;
+				if (new BigInteger('FF', 16).toString() != '255') return false;
+				if (new BigInteger('1A6B765D8CDF', 16).toString() != '29048849665247') return false;
+				if (new BigInteger('a89c e5af8724 c0a23e0e 0ff77500', 16).toString(16) != 'a89ce5af8724c0a23e0e0ff77500') return false;
+				if (new BigInteger('123456789abcdef123456789abcdef123456789abcdef', 16).toString(16) != '123456789abcdef123456789abcdef123456789abcdef') return false;
+				if (new BigInteger('10654321').toString() != '10654321') return false;
+				if (new BigInteger('10000000000000000').toString(10) != '10000000000000000') return false;
+
+				return true;
+			},
+			testBigIntegerShouldImportExportTwosComplementBigEndian: function () {
+				if (new BigInteger([1, 2, 3], 256).toString(16) != '10203') return false;
+				if (new BigInteger([1, 2, 3, 4], 256).toString(16) != '1020304') return false;
+				if (new BigInteger([1, 2, 3, 4, 5], 256).toString(16) != '102030405') return false;
+				if (new BigInteger([1, 2, 3, 4, 5, 6, 7, 8], 256).toString(16) != '102030405060708') return false;
+				if (new BigInteger([1, 2, 3, 4], 256).toByteArray().join(',') != '1,2,3,4') return false;
+				if (new BigInteger([1, 2, 3, 4, 5, 6, 7, 8], 256).toByteArray().join(',') != '1,2,3,4,5,6,7,8') return false;
+
+				return true;
+			},
+			testBigIntegerShouldReturnProperBitLength: function () {
+				if (new BigInteger('0').bitLength() != 0) return false;
+				if (new BigInteger('1', 16).bitLength() != 1) return false;
+				if (new BigInteger('2', 16).bitLength() != 2) return false;
+				if (new BigInteger('3', 16).bitLength() != 2) return false;
+				if (new BigInteger('4', 16).bitLength() != 3) return false;
+				if (new BigInteger('8', 16).bitLength() != 4) return false;
+				if (new BigInteger('10', 16).bitLength() != 5) return false;
+				if (new BigInteger('100', 16).bitLength() != 9) return false;
+				if (new BigInteger('123456', 16).bitLength() != 21) return false;
+				if (new BigInteger('123456789', 16).bitLength() != 33) return false;
+				if (new BigInteger('8023456789', 16).bitLength() != 40) return false;
+
+				return true;
+			},
+			testBigIntegerShouldAddNumbers: function () {
+				// test 1
+				if (new BigInteger('14').add(new BigInteger('26')).toString(16) != '28') return false;
+
+				// test 2
+				var k = new BigInteger('1234', 16);
+				var r = k;
+				for (var i = 0; i < 257; i++) r = r.add(k);
+				if (r.toString(16) != '125868') return false;
+
+				// test 3
+				var k = new BigInteger('abcdefabcdefabcdef', 16);
+				var r = new BigInteger('deadbeef', 16);
+				for (var i = 0; i < 257; i++) {
+					r = r.add(k);
+				}
+				if (r.toString(16) != 'ac79bd9b79be7a277bde') return false;
+
+				return true;
+			},
+			testBigIntegerShouldSubtractNumbers: function () {
+				// test 1
+				if (new BigInteger('14').subtract(new BigInteger('26')).toString(16) != '-c') return false;
+				// test 2
+				if (new BigInteger('26').subtract(new BigInteger('14')).toString(16) != 'c') return false;
+				// test 3
+				if (new BigInteger('26').subtract(new BigInteger('26')).toString(16) != '0') return false;
+				// test 4
+				if (new BigInteger('-26').subtract(new BigInteger('26')).toString(16) != '-34') return false;
+				// test 5
+				var a = new BigInteger('31ff3c61db2db84b9823d320907a573f6ad37c437abe458b1802cda041d6384a7d8daef41395491e2', 16);
+				var b = new BigInteger('6f0e4d9f1d6071c183677f601af9305721c91d31b0bbbae8fb790000', 16);
+				var r = new BigInteger('31ff3c61db2db84b9823d3208989726578fd75276287cd9516533a9acfb9a6776281f34583ddb91e2', 16);
+				if (a.subtract(b).compareTo(r) != 0) return false;
+				// test 6
+				var r = b.subtract(new BigInteger('14'));
+				if (b.clone().subtract(new BigInteger('14')).compareTo(r) != 0) return false;
+				// test 7
+				var r = new BigInteger('7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b', 16);
+				if (r.subtract(new BigInteger('-1')).toString(16) != '7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681c') return false;
+				// test 8
+				// Carry and copy
+				var a = new BigInteger('12345', 16);
+				var b = new BigInteger('1000000000000', 16);
+				if (a.subtract(b).toString(16) != '-fffffffedcbb') return false;
+				// test 9
+				var a = new BigInteger('12345', 16);
+				var b = new BigInteger('1000000000000', 16);
+				if (b.subtract(a).toString(16) != 'fffffffedcbb') return false;
+				
+				return true;
+			},
+			testBigIntegerShouldMultiplyNumbers: function () {
+				if (new BigInteger('1001', 16).multiply(new BigInteger('1234', 16)).toString(16) != '1235234') return false;
+				if (new BigInteger('-1001', 16).multiply(new BigInteger('1234', 16)).toString(16) != '-1235234') return false;
+				if (new BigInteger('-1001', 16).multiply(new BigInteger('-1234', 16)).toString(16) != '1235234') return false;
+
+				// test 4
+				var n = new BigInteger('1001', 16);
+				var r = n;
+				for (var i = 0; i < 4; i++) {
+					r = r.multiply(n);
+				}
+				if (r.toString(16) != '100500a00a005001') return false;
+
+				var n = new BigInteger('79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 16);
+				if (n.multiply(n).toString(16) != '39e58a8055b6fb264b75ec8c646509784204ac15a8c24e05babc9729ab9b055c3a9458e4ce3289560a38e08ba8175a9446ce14e608245ab3a9978a8bd8acaa40') return false;
+				if (n.multiply(n).multiply(n).toString(16) != '1b888e01a06e974017a28a5b4da436169761c9730b7aeedf75fc60f687b46e0cf2cb11667f795d5569482640fe5f628939467a01a612b023500d0161e9730279a7561043af6197798e41b7432458463e64fa81158907322dc330562697d0d600') return false;
+
+				if (new BigInteger('-100000000000').multiply(new BigInteger('3').divide(new BigInteger('4'))).toString(16) != '0') return false;
+
+				return true;
+			},
+			testBigIntegerShouldDivideNumbers: function () {
+				if (new BigInteger('10').divide(new BigInteger('256')).toString(16) != '0') return false;
+				if (new BigInteger('69527932928').divide(new BigInteger('16974594')).toString(16) != 'fff') return false;
+				if (new BigInteger('-69527932928').divide(new BigInteger('16974594')).toString(16) != '-fff') return false;
+
+				var b = new BigInteger('39e58a8055b6fb264b75ec8c646509784204ac15a8c24e05babc9729ab9b055c3a9458e4ce3289560a38e08ba8175a9446ce14e608245ab3a9978a8bd8acaa40', 16);
+				var n = new BigInteger('79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 16);
+				if (b.divide(n).toString(16) != n.toString(16)) return false;
+
+				if (new BigInteger('1').divide(new BigInteger('-5')).toString(10) != '0') return false;
+
+				//	// Regression after moving to word div
+				var p = new BigInteger('fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f', 16);
+				var a = new BigInteger('79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 16);
+				var as = a.square();
+				if (as.divide(p).toString(16) != '39e58a8055b6fb264b75ec8c646509784204ac15a8c24e05babc9729e58090b9') return false;
+
+				var p = new BigInteger('ffffffff00000001000000000000000000000000ffffffffffffffffffffffff', 16);
+				var a = new BigInteger('fffffffe00000003fffffffd0000000200000001fffffffe00000002ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 16);
+				if (a.divide(p).toString(16) != 'ffffffff00000002000000000000000000000001000000000000000000000001') return false;
+				
+				return true;
+			},
+			testBigIntegerShouldModNumbers: function () {
+				if (new BigInteger('10').mod(new BigInteger('256')).toString(16) != 'a') return false;
+				if (new BigInteger('69527932928').mod(new BigInteger('16974594')).toString(16) != '102f302') return false;
+				if (new BigInteger('-69527932928').mod(new BigInteger('16974594')).toString(16) != '1000') return false;
+				if (new BigInteger('10', 16).mod(new BigInteger('256')).toString(16) != '10') return false;
+				if (new BigInteger('100', 16).mod(new BigInteger('256')).toString(16) != '0') return false;
+				if (new BigInteger('1001', 16).mod(new BigInteger('256')).toString(16) != '1') return false;
+				if (new BigInteger('100000000001', 16).mod(new BigInteger('256')).toString(16) != '1') return false;
+				if (new BigInteger('100000000001', 16).mod(new BigInteger('257')).toString(16) != new BigInteger('100000000001', 16).mod(new BigInteger('257')).toString(16)) return false;
+				if (new BigInteger('123456789012', 16).mod(new BigInteger('3')).toString(16) != new BigInteger('123456789012', 16).mod(new BigInteger('3')).toString(16)) return false;
+
+				var p = new BigInteger('ffffffff00000001000000000000000000000000ffffffffffffffffffffffff', 16);
+				var a = new BigInteger('fffffffe00000003fffffffd0000000200000001fffffffe00000002ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 16);
+				if (a.mod(p).toString(16) != '0') return false;
+				
+				return true;
+			},
+			testBigIntegerShouldShiftLeftNumbers: function () {
+				if (new BigInteger('69527932928').shiftLeft(13).toString(16) != '2060602000000') return false;
+				if (new BigInteger('69527932928').shiftLeft(45).toString(16) != '206060200000000000000') return false;
+				
+				return true;
+			},
+			testBigIntegerShouldShiftRightNumbers: function () {
+				if (new BigInteger('69527932928').shiftRight(13).toString(16) != '818180') return false;
+				if (new BigInteger('69527932928').shiftRight(17).toString(16) != '81818') return false;
+				if (new BigInteger('69527932928').shiftRight(256).toString(16) != '0') return false;
+				
+				return true;
+			},
+			testBigIntegerShouldModInverseNumbers: function () {
+				var p = new BigInteger('257');
+				var a = new BigInteger('3');
+				var b = a.modInverse(p);
+				if (a.multiply(b).mod(p).toString(16) != '1') return false;
+
+				var p192 = new BigInteger('fffffffffffffffffffffffffffffffeffffffffffffffff', 16);
+				var a = new BigInteger('deadbeef', 16);
+				var b = a.modInverse(p192);
+				if (a.multiply(b).mod(p192).toString(16) != '1') return false;
+				
+				return true;
+			},
+			testBigIntegerShouldThrowOnModInverseOfZero: function () {
+				var p = new BigInteger('257');
+				var a = new BigInteger('0');
+				//division by zero
+				try {
+					a.modInverse(p);
+				}
+				catch (e) {
+					return true;
+				}
+				return false;
+			},
+			testBigIntegerShouldAlwaysReturnPositiveNumber: function () {
+				var z = new BigInteger('cc61934972bba029382f0bef146b228ca15d54f7e38b6cd5f6b382398b7a97a8', 16);
+				var p = new BigInteger('fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f', 16);
+				var zInv = z.modInverse(p);
+				if (zInv.signum() !== 1) return false; //zInv should be positive
+				
+				return true;
+			},
+			testECKeyDoesntHangWithSpecificKey: function () {
+				var key = "848b39bbe4c9ddf978d3d8f786315bdc3ba71237d5f780399e0026e1269313ef";
+				var btcKey = new Bitcoin.ECKey(key);
+				if (btcKey.getPubKeyHex() != "0478BC8F7CB4485E7A0314A698AA1600639FF2922D09C26DED5F730CAC4784477D2B325922459F017AC1E8775436D11D7F84BD84E11CB64FC9BE110931D0C990CE"
+						) {
+					return false;
+				}
+				return true;
+			},
+
+			// test checksum exceptions 
+			testUncompressedWifShouldFailChecksum: function () {
+				// original key: 5KjQAHniFiy18SU7eenyJ9EPYUkjrbiBPfDqw987QjT5vehVQZV   K->k
+				var key = "5kjQAHniFiy18SU7eenyJ9EPYUkjrbiBPfDqw987QjT5vehVQZV";
+				var btcKey = new Bitcoin.ECKey(key);
+				if (btcKey.error.toString().indexOf("failed") == -1) { //Checksum validation failed!
+					return false;
+				}
+				return true;
+
+			},
+			testCompressedWifShouldFailChecksum: function () {
+				// 	original key: L5g9E16m5zEBZqQgMBouUfL6VwW49vCks1hgyxrPHkN8jNNdWTTk   g->G
+				var key = "L5G9E16m5zEBZqQgMBouUfL6VwW49vCks1hgyxrPHkN8jNNdWTTk";
+				var btcKey = new Bitcoin.ECKey(key);
+				if (btcKey.error.toString().indexOf("failed") == -1) { //Checksum validation failed!
+					return false;
+				}
+				return true;
+
+			},
+			// test range of valid private key values for the secp256k1 curve, when specified in hex is 
+			// [0x1, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140]
+			testBigIntegerZeroShouldSetError: function () {
+				var key = "0000000000000000000000000000000000000000000000000000000000000000";
+				var btcKey = new Bitcoin.ECKey(key);
+				if (btcKey.error == null) { 
+					return false;
+				}
+				return true;
+
+			},
+			testBigIntegerOutOfCurveRangeShouldSetError1: function () {
+				var key = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141";
+				var btcKey = new Bitcoin.ECKey(key);
+				if (btcKey.error == null) {
+					return false;
+				}
+				return true;
+			},
+			testBigIntegerOutOfCurveRangeShouldSetError2: function () {
+				var key = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364142";
+				var btcKey = new Bitcoin.ECKey(key);
+				if (btcKey.error == null) {
+					return false;
+				}
+				return true;
+			},
+			testBigIntegerOutOfCurveRangeShouldSetError3: function () {
+				var key = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+				var btcKey = new Bitcoin.ECKey(key);
+				if (btcKey.error == null) {
 					return false;
 				}
 				return true;

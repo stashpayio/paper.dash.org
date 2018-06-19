@@ -22,7 +22,11 @@
     "dash address wallet generator"
   ],
   "author": "dash",
-  "contributors": [{"name": "pointbiz"}],
+  "contributors": [
+    {
+      "name": "pointbiz"
+    }
+  ],
   "license": "MIT",
   "readmeFilename": "README.md",
   "bugs": {

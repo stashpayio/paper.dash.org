@@ -4,13 +4,8 @@
   "sha256sum": "4f5254b4a6791c8d277bed6ea3d7928e1721a8068dffda9441b5c6bb4bfb7006",
   "description": "Open Source JavaScript Client-Side Dash Wallet Generator",
   "main": "Gruntfile.js",
-  "dependencies": {
-    "grunt": "~0.4.1",
-    "grunt-combine": "~0.8.3",
-    "grunt-lineending": "~0.2.4"
-  },
   "devDependencies": {
-  "grunt": "~0.4.1",
+    "grunt": "~0.4.1",
     "grunt-combine": "~0.8.3",
     "grunt-lineending": "~0.2.4"
   },

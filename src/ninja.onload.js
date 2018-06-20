@@ -8,6 +8,7 @@ if (ninja.getQueryString()["asyncunittests"] == "true" || ninja.getQueryString()
 	ninja.unitTests.runAsynchronousTests(true);
 }
 // change language
+ninja.translator.extractEnglishFromDomAndUpdateDictionary();
 if (ninja.getQueryString()["culture"] != undefined) {
 	ninja.translator.translate(ninja.getQueryString()["culture"]);
 } else {
@@ -19,7 +20,7 @@ if (ninja.getQueryString()["testnet"] == "true" || ninja.getQueryString()["testn
 	document.getElementById("testnet").style.display = "block";
 	document.getElementById("detailwifprefix").innerHTML = "'9'";
 	document.getElementById("detailcompwifprefix").innerHTML = "'c'";
-	Bitcoin.Address.networkVersion = 0x6F; // testnet
+	Bitcoin.Address.networkVersion = 0x8C; // testnet
 	Bitcoin.ECKey.privateKeyPrefix = 0xEF; // testnet
 	ninja.testnetMode = true;
 }

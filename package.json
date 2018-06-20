@@ -6,10 +6,12 @@
   "main": "Gruntfile.js",
   "devDependencies": {
     "grunt": "~0.4.1",
+    "grunt-cli": "^1.2.0",
     "grunt-combine": "~0.8.3",
     "grunt-lineending": "~0.2.4"
   },
   "scripts": {
+    "build": "grunt",
     "test": ""
   },
   "repository": {

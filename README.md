@@ -4,6 +4,22 @@ JavaScript Client-Side Dash Wallet Generator
 Now Dash addresses and their corresponding private key can be conveniently 
 generated in a web browser.
 
+## Installation
+
+1. Install dependencies for compiling single page application:
+
+    ```bash
+    npm install
+    ```
+
+2. Build the single-page application:
+
+    ```bash
+    npm run build
+    ```
+
+
+## Attribution
 
 Based on bitaddress.org
 JavaScript Client-Side Bitcoin Wallet Generator

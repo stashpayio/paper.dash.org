@@ -69,11 +69,20 @@ module.exports = function (grunt) {
           './paper.dash.org.html': ['./paper.dash.org.html']
         }
       }
-    }
+    },
+
+    assetenc: {
+      pathToAssets: 'src/images',
+      rootAlias: 'images',
+      dst: './paper.dash.org.html',
+      template: './paper.dash.org.html',
+    },
+
   });
 
   grunt.file.defaultEncoding = 'utf-8';
   grunt.loadNpmTasks("grunt-combine");
   grunt.loadNpmTasks('grunt-lineending');
-  grunt.registerTask("default", ["combine:single", "lineending"]);
+  grunt.loadNpmTasks('grunt-encode-asset-base64');
+  grunt.registerTask("default", ["combine:single", "lineending", "assetenc"]);
 };

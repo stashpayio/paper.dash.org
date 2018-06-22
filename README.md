@@ -1,7 +1,7 @@
 # paper.dash.org
 JavaScript Client-Side Dash Wallet Generator
 
-Now Dash addresses and their corresponding private key can be conveniently 
+Now Dash addresses and their corresponding private key can be conveniently
 generated in a web browser.
 
 ## Installation
@@ -26,15 +26,15 @@ JavaScript Client-Side Bitcoin Wallet Generator
 
 The bitaddress.org project provides an all-in-one HTML document with embedded
 JavaScript/Css/Images. The JavaScript is readable not minified and contains no
-XMLHttpRequest's (no AJAX). The benefit of this technique is you can load the 
-JavaScript locally and trust that the JavaScript did not change after being 
-loaded. 
+XMLHttpRequest's (no AJAX). The benefit of this technique is you can load the
+JavaScript locally and trust that the JavaScript did not change after being
+loaded.
 
 Here is a link to the BitcoinTalk.org forum topic discussing original project:
 https://bitcointalk.org/index.php?topic=43496.0
 
 
-Please send DONATIONS for original project to Bitcoin Address: 
+Please send DONATIONS for original project to Bitcoin Address:
 1NiNja1bUmhSoTXozBRBEtR8LeF9TGbZBN
 
 
@@ -74,15 +74,15 @@ libraries are separated with HTML script tags.
 
 Summary of JavaScript functions with a redistributable license:
 
-JavaScript function	|	License
--------------------	|	--------------
-Array.prototype.map	|	Public Domain
-window.Crypto | BSD License
-window.SecureRandom	| BSD License
-window.EllipticCurve	|	BSD License
-window.BigInteger |	BSD License
-window.QRCode | MIT License
-window.Bitcoin | MIT License
+JavaScript function  | License
+-------------------  | --------------
+Array.prototype.map  | Public Domain
+window.Crypto        | BSD License
+window.SecureRandom  | BSD License
+window.EllipticCurve | BSD License
+window.BigInteger    | BSD License
+window.QRCode        | MIT License
+window.Bitcoin       | MIT License
 
 The bitaddress.org software is available under The MIT License (MIT)
 Copyright (c) 2011-2013 bitaddress.org

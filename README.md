@@ -1,7 +1,7 @@
-# paper.dash.org
-JavaScript Client-Side Dash Wallet Generator
+# paper.stashpay.io
+JavaScript Client-Side Stash Wallet Generator
 
-Now Dash addresses and their corresponding private key can be conveniently
+Now Stash addresses and their corresponding private key can be conveniently
 generated in a web browser.
 
 ## Installation
@@ -55,10 +55,10 @@ END USER NOTES:
 
 Notice of Copyrights and Licenses:
 ---------------------------------------
-The paper.dash.org project, software and embedded resources are
-copyright The Dash Developers.
+The paper.stashpay.io project, software and embedded resources are
+copyright The Stash Developers.
 
-The paper.dash.org name, Dash name and logo are not part of the open source
+The paper.stashpay.io name, Stash name and logo are not part of the open source
 license.
 
 The bitaddress.org project, software and embedded resources are

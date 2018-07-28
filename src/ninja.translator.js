@@ -7,7 +7,7 @@
 			// window.navigator.userLanguage for IE
 			var language = window.navigator.language || window.navigator.userLanguage;
 			if (!this.translate(language)) {
-				// Try to remove part after dash, for example cs-CZ -> cs
+				// Try to remove part after stash, for example cs-CZ -> cs
 				language = language.substr(0, language.indexOf('-'));
 				this.translate(language);
 			}
@@ -53,22 +53,22 @@
 			"en": {
 				// javascript alerts or messages
 				"testneteditionactivated": "TESTNET EDITION ACTIVATED",
-				"paperlabelbitcoinaddress": "Dash Address:",
+				"paperlabelbitcoinaddress": "Stash Address:",
 				"paperlabelprivatekey": "Private Key:",
 				"paperlabelencryptedkey": "Encrypted Private Key (Password required)",
 				"bulkgeneratingaddresses": "Generating addresses... ",
 				"brainalertpassphrasetooshort": "The passphrase you entered is too short.\n\n",
-				"brainalertpassphrasewarning": "Warning: Choosing a strong passphrase is important to avoid brute force attempts to guess your passphrase and steal your Dash.",
+				"brainalertpassphrasewarning": "Warning: Choosing a strong passphrase is important to avoid brute force attempts to guess your passphrase and steal your Stash.",
 				"brainalertpassphrasedoesnotmatch": "The passphrase does not match the confirm passphrase.",
 				"detailalertnotvalidprivatekey": "The text you entered is not a valid Private Key",
-				"detailconfirmsha256": "The text you entered is not a valid Private Key!\n\nWould you like to use the entered text as a passphrase and create a Private Key using a SHA256 hash of the passphrase?\n\nWarning: Choosing a strong passphrase is important to avoid brute force attempts to guess your passphrase and steal your Dash.",
+				"detailconfirmsha256": "The text you entered is not a valid Private Key!\n\nWould you like to use the entered text as a passphrase and create a Private Key using a SHA256 hash of the passphrase?\n\nWarning: Choosing a strong passphrase is important to avoid brute force attempts to guess your passphrase and steal your Stash.",
 				"detailbip38decryptbutton": "Decrypt BIP38", //TODO: please translate
 				"detailbip38encryptbutton": "Encrypt BIP38", //TODO: please translate
 				"bip38alertincorrectpassphrase": "Incorrect passphrase for this encrypted private key.",
 				"bip38alertpassphraserequired": "Passphrase required for BIP38 key",
 				"vanityinvalidinputcouldnotcombinekeys": "Invalid input. Could not combine keys.",
 				"vanityalertinvalidinputpublickeysmatch": "Invalid input. The Public Key of both entries match. You must input two different keys.",
-				"vanityalertinvalidinputcannotmultiple": "Invalid input. Cannot multiply two public keys. Select 'Add' to add two public keys to get a Dash address.",
+				"vanityalertinvalidinputcannotmultiple": "Invalid input. Cannot multiply two public keys. Select 'Add' to add two public keys to get a Stash address.",
 				"vanityprivatekeyonlyavailable": "Only available when combining two private keys",
 				"vanityalertinvalidinputprivatekeysmatch": "Invalid input. The Private Key of both entries match. You must input two different keys.",
 

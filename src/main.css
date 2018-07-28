@@ -5,7 +5,7 @@
 a { position: relative; z-index: 20; }
 .right { text-align: right; }
 .walletarea { display: none; border: 2px solid #008de4; }
-hr { margin: 20px 0; border-top: 2px dashed #008000; }
+hr { margin: 20px 0; border-top: 2px stashed #008000; }
 .keyarea { height: 110px; text-align: left; position: relative; padding: 5px; }
 .keyarea .public { float: left; }
 .keyarea .pubaddress { display: inline-block; height: 40px; padding: 0 0 0 10px; float: left; }
